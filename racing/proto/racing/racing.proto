@@ -22,8 +22,14 @@ message ListRacesResponse {
 }
 
 // Filter for listing races.
+enum VisibilityStatus {
+  ALL = 0;
+  VISIBLE = 1;
+  HIDDEN = 2;
+}
 message ListRacesRequestFilter {
   repeated int64 meeting_ids = 1;
+  VisibilityStatus visibility_status = 2;
 }
 
 /* Resources */

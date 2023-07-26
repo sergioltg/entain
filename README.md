@@ -1,3 +1,14 @@
+## Explanation for the implemented tasks
+
+## Task 1
+Added a new filter for the method listRaces called visibility_status. The values can be ALL, VISIBLE and HIDDEN.
+Also added two unit tests:
+
+* racing_test.go - service that uses a mocked races repository
+* races_test.go - repository test that uses sqllite in memory for testing the repository connecting to a database.
+
+Testify package was installed to facilitate the test cases
+
 ## Entain BE Technical Test
 
 This test has been designed to demonstrate your ability and understanding of technologies commonly used at Entain. 
