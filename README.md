@@ -1,7 +1,8 @@
 ## Explanation for the implemented tasks
 
 ## Task 1
-Added a new filter for the method listRaces called visibility_status. The values can be ALL, VISIBLE and HIDDEN.
+Added a new filter for the method listRaces called visibility_status. The values can be VISIBLE and HIDDEN. When it is not informed it will return all races.
+
 To make a request using the filter:
 
 ```bash
@@ -20,7 +21,7 @@ Also added two unit tests:
 Testify package was installed to facilitate the test cases
 
 ## Task 2
-Added a new field to the request called order_by. It is an array and multiple order by fields can be passed with their respective direction that can be ASC or DESC.
+Added a new field to the request called order_by. It is an array and multiple order by fields can be passed with their respective direction that can be ASC or DESC. By default, is uses ASC.
 
 At the moment only the field advertisedStartTime have been implemented but another field can be added easily. I think we should have a control which fields should be allowed for sorting.
 
@@ -41,11 +42,30 @@ curl -X "POST" "http://localhost:8000/v1/list-races" \
 ```
 
 ## Task 3
-Added a new field to the race called status. It is calculated when scanning the database and building the list of races.
+Added a new field to the race called status. It is calculated when scanning the database rows and building the list of races.
 
 ## Task 4
 Added a new rpc call to fetch for a single race by id. It returns 404 if no race is found.
-Added test cases for checking when a id exists and when an id is not found.
+
+```bash
+curl -X "GET" "http://localhost:8000/v1/race/1"
+```
+Added test cases for checking when an id exists and when an id is not found.
+
+## Task 5
+Added a 'sports' service. It is very similar to the races.
+
+This service will use the port 9001. Changed the http api to connect to the service endpoint.
+
+```bash
+curl -X "POST" "http://localhost:8000/v1/list-events" \
+     -H 'Content-Type: application/json' \
+     -d $'{  
+	"filter": {}
+}'
+
+curl -X "GET" "http://localhost:8000/v1/event/1"
+```
 
 ## Entain BE Technical Test
 

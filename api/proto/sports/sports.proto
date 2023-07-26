@@ -1,0 +1,82 @@
+syntax = "proto3";
+package sports;
+
+option go_package = "/sports";
+
+import "google/protobuf/timestamp.proto";
+import "google/api/annotations.proto";
+
+service Sports {
+  // ListEvents returns a list of all sport events.
+  rpc ListEvents(ListEventsRequest) returns (ListEventsResponse) {
+    option (google.api.http) = { post: "/v1/list-events", body: "*" };
+  }
+
+  // GetEvent returns a single event
+  rpc GetEvent(GetEventRequest) returns (GetEventResponse) {
+    option (google.api.http) = {get: "/v1/event/{id}"};
+  }
+}
+
+/* Requests/Responses */
+
+// Request for ListEvents call.
+message ListEventsRequest {
+  ListEventsRequestFilter filter = 1;
+  repeated ListEventsRequestOrderBy order_by = 2;
+}
+
+// Response to ListEvents call.
+message ListEventsResponse {
+  repeated Event events = 1;
+}
+
+// Filter for listing events.
+enum VisibilityStatus {
+  ALL = 0;
+  VISIBLE = 1;
+  HIDDEN = 2;
+}
+message ListEventsRequestFilter {
+  repeated int64 meeting_ids = 1;
+  VisibilityStatus visibility_status = 2;
+}
+
+// Order by for listing events
+enum OrderByDirection {
+  ASC = 0;
+  DESC = 1;
+}
+message ListEventsRequestOrderBy {
+  string field_name = 1;
+  OrderByDirection direction = 2;
+}
+
+// Request for GetEvent
+message GetEventRequest {
+  // "v1/event/1"
+  int64 id = 1;
+}
+
+// Response to GetEvent call.
+message GetEventResponse {
+  Event event = 1;
+}
+
+/* Resources */
+
+// A event resource.
+message Event {
+  // ID represents a unique identifier for the event.
+  int64 id = 1;
+  // MeetingID represents a unique identifier for the event meeting.
+  int64 meeting_id = 2;
+  // Name is the official name given to the event.
+  string name = 3;
+  // Visible represents whether or not the event is visible.
+  bool visible = 4;
+  // AdvertisedStartTime is the time the event is advertised to run.
+  google.protobuf.Timestamp advertised_start_time = 5;
+  // Status based on the advertised_start_time
+  string status = 6;
+}
