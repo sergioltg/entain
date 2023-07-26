@@ -1,7 +1,8 @@
 ## Explanation for the implemented tasks
 
 ## Task 1
-Added a new filter for the method listRaces called visibility_status. The values can be ALL, VISIBLE and HIDDEN.
+Added a new filter for the method listRaces called visibility_status. The values can be VISIBLE and HIDDEN. When it is not informed it will return all races.
+
 To make a request using the filter:
 
 ```bash
