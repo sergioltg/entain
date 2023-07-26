@@ -10,7 +10,7 @@ import (
 	"time"
 )
 
-func TestEventsRepo_List(t *testing.T) {
+func TestSportsRepo_List(t *testing.T) {
 	// Open an in-memory SQLite database for testing
 	db, err := sql.Open("sqlite3", ":memory:")
 	if err != nil {
@@ -201,7 +201,7 @@ func TestEventsRepo_List(t *testing.T) {
 	}
 }
 
-func TestEventsRepo_Get(t *testing.T) {
+func TestSportsRepo_Get(t *testing.T) {
 	// Open an in-memory SQLite database for testing
 	db, err := sql.Open("sqlite3", ":memory:")
 	if err != nil {
@@ -225,8 +225,15 @@ func TestEventsRepo_Get(t *testing.T) {
 		}
 
 		// Compare if the right event was returned
-		var expectedId int64 = 2
-		assert.Equal(t, event.Id, expectedId)
+		expectedRace := sports.Event{
+			Id:                  2,
+			MeetingId:           1,
+			Name:                "Connecticut griffins",
+			Visible:             true,
+			Status:              "OPEN",
+			AdvertisedStartTime: timestamppb.New(time.Date(2023, 7, 15, 12, 0, 0, 0, time.UTC)),
+		}
+		assert.Equal(t, event, &expectedRace)
 	})
 
 	t.Run("GetByIdNotFound", func(t *testing.T) {
@@ -247,7 +254,7 @@ func initTestDB(db *sql.DB) error {
 	events := getAllTestData()
 
 	for _, s := range events {
-		statement, err = db.Prepare(`INSERT OR IGNORE INTO events(id, meeting_id, name, number, visible, advertised_start_time) VALUES (?,?,?,?,?,?)`)
+		statement, err = db.Prepare(`INSERT OR IGNORE INTO events(id, meeting_id, name, visible, advertised_start_time) VALUES (?,?,?,?,?)`)
 		if err == nil {
 			_, err = statement.Exec(
 				s.Id,

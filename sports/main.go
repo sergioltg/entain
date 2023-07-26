@@ -49,7 +49,7 @@ func run() error {
 		),
 	)
 
-	log.Printf("gRPC server listening on: %s\n", *grpcEndpoint)
+	log.Printf("gRPC sports server listening on: %s\n", *grpcEndpoint)
 
 	if err := grpcServer.Serve(conn); err != nil {
 		return err

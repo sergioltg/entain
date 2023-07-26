@@ -45,7 +45,24 @@ Added a new field to the race called status. It is calculated when scanning the 
 
 ## Task 4
 Added a new rpc call to fetch for a single race by id. It returns 404 if no race is found.
-Added test cases for checking when a id exists and when an id is not found.
+
+```bash
+curl -X "GET" "http://localhost:8000/v1/race/1"
+```
+Added test cases for checking when an id exists and when an id is not found.
+
+## Task 5
+Added a 'sports' service. It is very similar to the races.
+
+This service will use the port 9001. Changed the http api to connect to the right endpoint.
+
+```bash
+curl -X "POST" "http://localhost:8000/v1/list-events" \
+     -H 'Content-Type: application/json' \
+     -d $'{  
+	"filter": {}
+}'
+```
 
 ## Entain BE Technical Test
 

@@ -25,12 +25,12 @@ func (m *MockEventsRepo) List(filter *sports.ListEventsRequestFilter, orderBy []
 	var filteredEvents []*sports.Event
 	for _, event := range events {
 		if filter != nil {
-			if filter.GetVisibilityStatus() == sports.VisibilityStatus_VISIBLE && !event.GetVisible() {
+			if filter.GetVisibilityStatus() == sports.VisibilityStatus_VISIBLE && !event.Visible {
 				// Skip events that are not visible
 				continue
 			}
 
-			if filter.GetVisibilityStatus() == sports.VisibilityStatus_HIDDEN && event.GetVisible() {
+			if filter.GetVisibilityStatus() == sports.VisibilityStatus_HIDDEN && event.Visible {
 				// Skip events that are visible
 				continue
 			}
@@ -268,38 +268,18 @@ func TestSportsService_GetEvent(t *testing.T) {
 			t.Fatalf("unexpected error: %v", err)
 		}
 
-		assert.Equal(t, response.Event.Id, request.GetId())
-	})
-}
-
-func getEvents() map[int64]*sports.Event {
-	events := map[int64]*sports.Event{
-		1: {
-			Id:                  1,
-			MeetingId:           5,
-			Name:                "North Dakota foes",
-			Visible:             false,
-			Status:              "CLOSED",
-			AdvertisedStartTime: timestamppb.New(time.Date(2022, 7, 15, 12, 0, 0, 0, time.UTC)),
-		},
-		2: {
+		// Compare if the right event was returned
+		expectedRace := sports.Event{
 			Id:                  2,
 			MeetingId:           1,
 			Name:                "Connecticut griffins",
 			Visible:             true,
 			Status:              "OPEN",
 			AdvertisedStartTime: timestamppb.New(time.Date(2023, 7, 15, 12, 0, 0, 0, time.UTC)),
-		},
-		3: {
-			Id:                  3,
-			MeetingId:           8,
-			Name:                "Rhode Island ghosts",
-			Visible:             false,
-			Status:              "OPEN",
-			AdvertisedStartTime: timestamppb.New(time.Date(2024, 7, 15, 12, 0, 0, 0, time.UTC)),
-		},
-	}
-	return events
+		}
+
+		assert.Equal(t, response.Event, &expectedRace)
+	})
 }
 
 func getAllTestData() []*sports.Event {
