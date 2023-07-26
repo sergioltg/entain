@@ -98,6 +98,16 @@ func compareField(orderBy *racing.ListRacesRequestOrderBy, a *racing.Race, b *ra
 	return 0
 }
 
+func (m *MockRacesRepo) Get(id int64, currentDate time.Time) (*racing.Race, error) {
+	races := getAllTestData()
+	for _, race := range races {
+		if race.Id == id {
+			return race, nil
+		}
+	}
+	return nil, nil
+}
+
 func TestRacingService_ListRaces(t *testing.T) {
 	// Define test cases with different inputs and expected outputs
 	testCases := []struct {
@@ -245,6 +255,28 @@ func TestRacingService_ListRaces(t *testing.T) {
 			assert.Equal(t, tc.expectedRaces, response.Races, "unexpected races")
 		})
 	}
+}
+
+func TestRacingService_GetRace(t *testing.T) {
+	t.Run("GetById", func(t *testing.T) {
+		racesRepo := &MockRacesRepo{}
+		racingSvc := NewRacingService(racesRepo)
+
+		// Prepare the request
+		request := &racing.GetRaceRequest{
+			Id: 2,
+		}
+
+		// Call the method being tested
+		response, err := racingSvc.GetRace(context.Background(), request)
+
+		// Check for errors
+		if err != nil {
+			t.Fatalf("unexpected error: %v", err)
+		}
+
+		assert.Equal(t, response.Race.Id, request.GetId())
+	})
 }
 
 func getAllTestData() []*racing.Race {

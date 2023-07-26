@@ -213,6 +213,43 @@ func TestRacesRepo_List(t *testing.T) {
 	}
 }
 
+func TestRacesRepo_Get(t *testing.T) {
+	// Open an in-memory SQLite database for testing
+	db, err := sql.Open("sqlite3", ":memory:")
+	if err != nil {
+		t.Fatalf("failed to open in-memory database: %v", err)
+	}
+	defer db.Close()
+
+	// Create a new RacesRepo using the test database
+	racesRepo := NewRacesRepo(db)
+
+	// Initialize the test database with dummy data
+	if err := initTestDB(db); err != nil {
+		t.Fatalf("failed to initialize test database: %v", err)
+	}
+
+	t.Run("GetById", func(t *testing.T) {
+		// Call the List method with the filter
+		race, err := racesRepo.Get(2, getDateNow())
+		if err != nil {
+			t.Fatalf("failed to get races: %v", err)
+		}
+
+		// Compare each race returned with the expected races
+		var expectedId int64 = 2
+		assert.Equal(t, race.Id, expectedId)
+	})
+
+	t.Run("GetByIdNotFound", func(t *testing.T) {
+		// Call the List method with the filter
+		_, err := racesRepo.Get(999, getDateNow())
+		if err != sql.ErrNoRows {
+			t.Fatalf("failed to get races: %v", err)
+		}
+	})
+}
+
 func initTestDB(db *sql.DB) error {
 	statement, err := db.Prepare(`CREATE TABLE IF NOT EXISTS races (id INTEGER PRIMARY KEY, meeting_id INTEGER, name TEXT, number INTEGER, visible INTEGER, advertised_start_time DATETIME)`)
 	if err == nil {

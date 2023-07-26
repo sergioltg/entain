@@ -19,6 +19,9 @@ type RacesRepo interface {
 
 	// List will return a list of races.
 	List(filter *racing.ListRacesRequestFilter, orderBy []*racing.ListRacesRequestOrderBy, currentDate time.Time) ([]*racing.Race, error)
+
+	// Get will return a single race. It will return an error if no race is found
+	Get(id int64, currentDate time.Time) (*racing.Race, error)
 }
 
 type racesRepo struct {
@@ -43,6 +46,7 @@ func (r *racesRepo) Init() error {
 	return err
 }
 
+// List Returns a list of races
 func (r *racesRepo) List(filter *racing.ListRacesRequestFilter, orderBy []*racing.ListRacesRequestOrderBy, currentDate time.Time) ([]*racing.Race, error) {
 	var (
 		err   error
@@ -120,6 +124,33 @@ func (r *racesRepo) applyOrderBy(query string, orderBy []*racing.ListRacesReques
 	}
 
 	return query
+}
+
+// Get Return a single race by id
+func (r *racesRepo) Get(id int64, currentDate time.Time) (*racing.Race, error) {
+	var (
+		err   error
+		query string
+		args  []interface{}
+	)
+
+	query = getRaceQueries()[racesList]
+	query += " WHERE Id = ?"
+	args = append(args, id)
+
+	rows, err := r.db.Query(query, args...)
+	if err != nil {
+		return nil, err
+	}
+
+	races, err := r.scanRaces(rows, currentDate)
+
+	if len(races) == 1 {
+		return races[0], err
+	} else {
+		// in case a race is not found return an error for no rows
+		return nil, sql.ErrNoRows
+	}
 }
 
 func (r *racesRepo) scanRaces(rows *sql.Rows, currentDate time.Time) ([]*racing.Race, error) {
