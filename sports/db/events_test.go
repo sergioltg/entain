@@ -10,7 +10,7 @@ import (
 	"time"
 )
 
-func TestSportsRepo_List(t *testing.T) {
+func TestEventsRepo_List(t *testing.T) {
 	// Open an in-memory SQLite database for testing
 	db, err := sql.Open("sqlite3", ":memory:")
 	if err != nil {
@@ -201,7 +201,7 @@ func TestSportsRepo_List(t *testing.T) {
 	}
 }
 
-func TestSportsRepo_Get(t *testing.T) {
+func TestEventsRepo_Get(t *testing.T) {
 	// Open an in-memory SQLite database for testing
 	db, err := sql.Open("sqlite3", ":memory:")
 	if err != nil {
