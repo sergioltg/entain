@@ -14,6 +14,7 @@ import (
 type Sports interface {
 	// ListEvents will return a collection of events.
 	ListEvents(ctx context.Context, in *sports.ListEventsRequest) (*sports.ListEventsResponse, error)
+	// GetEvent will return a single event by id
 	GetEvent(ctx context.Context, in *sports.GetEventRequest) (*sports.GetEventResponse, error)
 }
 
