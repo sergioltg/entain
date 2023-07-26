@@ -30,6 +30,7 @@ func TestRacesRepo_List(t *testing.T) {
 	testCases := []struct {
 		name          string
 		filter        *racing.ListRacesRequestFilter
+		orderBy       []*racing.ListRacesRequestOrderBy
 		expectedRaces []*racing.Race
 	}{
 		{
@@ -119,13 +120,47 @@ func TestRacesRepo_List(t *testing.T) {
 				},
 			},
 		},
+		{
+			name: "OrderByAdvertisedStartTimeDescending",
+			orderBy: []*racing.ListRacesRequestOrderBy{
+				{FieldName: "advertisedStartTime",
+					Direction: racing.OrderByDirection_DESC,
+				},
+			},
+			expectedRaces: []*racing.Race{
+				{
+					Id:                  3,
+					MeetingId:           8,
+					Name:                "Rhode Island ghosts",
+					Number:              3,
+					Visible:             false,
+					AdvertisedStartTime: timestamppb.New(time.Date(2024, 7, 15, 12, 0, 0, 0, time.UTC)),
+				},
+				{
+					Id:                  2,
+					MeetingId:           1,
+					Name:                "Connecticut griffins",
+					Number:              12,
+					Visible:             true,
+					AdvertisedStartTime: timestamppb.New(time.Date(2023, 7, 15, 12, 0, 0, 0, time.UTC)),
+				},
+				{
+					Id:                  1,
+					MeetingId:           5,
+					Name:                "North Dakota foes",
+					Number:              12,
+					Visible:             false,
+					AdvertisedStartTime: timestamppb.New(time.Date(2022, 7, 15, 12, 0, 0, 0, time.UTC)),
+				},
+			},
+		},
 	}
 
 	// Run the test cases using table-driven testing
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			// Call the List method with the filter
-			races, err := racesRepo.List(tc.filter)
+			races, err := racesRepo.List(tc.filter, tc.orderBy)
 			if err != nil {
 				t.Fatalf("failed to get races: %v", err)
 			}
@@ -136,7 +171,7 @@ func TestRacesRepo_List(t *testing.T) {
 			}
 
 			// Compare each race returned with the expected races
-			assert.ElementsMatch(t, tc.expectedRaces, races, "Unexpected races")
+			assert.Equal(t, tc.expectedRaces, races, "Unexpected races")
 		})
 	}
 }

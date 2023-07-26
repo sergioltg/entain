@@ -5,6 +5,7 @@ import (
 	"git.neds.sh/matty/entain/racing/proto/racing"
 	"github.com/stretchr/testify/assert"
 	"google.golang.org/protobuf/types/known/timestamppb"
+	"sort"
 	"testing"
 	"time"
 )
@@ -16,58 +17,36 @@ func (m *MockRacesRepo) Init() error {
 	return nil
 }
 
-func (m *MockRacesRepo) List(filter *racing.ListRacesRequestFilter) ([]*racing.Race, error) {
+func (m *MockRacesRepo) List(filter *racing.ListRacesRequestFilter, orderBy []*racing.ListRacesRequestOrderBy) ([]*racing.Race, error) {
 	// Mock the behavior here and return a predefined response.
 	// For simplicity, we'll return a predefined list of races.
-	races := []*racing.Race{
-		{Id: 1,
-			MeetingId:           5,
-			Name:                "North Dakota foes",
-			Number:              12,
-			Visible:             false,
-			AdvertisedStartTime: timestamppb.New(time.Date(2022, 7, 15, 12, 0, 0, 0, time.UTC)),
-		},
-		{
-			Id:                  2,
-			MeetingId:           1,
-			Name:                "Connecticut griffins",
-			Number:              12,
-			Visible:             true,
-			AdvertisedStartTime: timestamppb.New(time.Date(2023, 7, 15, 12, 0, 0, 0, time.UTC)),
-		},
-		{
-			Id:                  3,
-			MeetingId:           8,
-			Name:                "Rhode Island ghosts",
-			Number:              3,
-			Visible:             false,
-			AdvertisedStartTime: timestamppb.New(time.Date(2024, 7, 15, 12, 0, 0, 0, time.UTC)),
-		},
-	}
+	races := getAllTestData()
 
 	var filteredRaces []*racing.Race
 	for _, race := range races {
-		if filter.GetVisibilityStatus() == racing.VisibilityStatus_VISIBLE && !race.GetVisible() {
-			// Skip races that are not visible
-			continue
-		}
-
-		if filter.GetVisibilityStatus() == racing.VisibilityStatus_HIDDEN && race.GetVisible() {
-			// Skip races that are visible
-			continue
-		}
-
-		if len(filter.MeetingIds) > 0 {
-			// Skip races that don't match meeting ids
-			var result bool = false
-			for _, x := range filter.MeetingIds {
-				if x == race.MeetingId {
-					result = true
-					break
-				}
-			}
-			if !result {
+		if filter != nil {
+			if filter.GetVisibilityStatus() == racing.VisibilityStatus_VISIBLE && !race.GetVisible() {
+				// Skip races that are not visible
 				continue
+			}
+
+			if filter.GetVisibilityStatus() == racing.VisibilityStatus_HIDDEN && race.GetVisible() {
+				// Skip races that are visible
+				continue
+			}
+
+			if len(filter.MeetingIds) > 0 {
+				// Skip races that don't match meeting ids
+				var result = false
+				for _, x := range filter.MeetingIds {
+					if x == race.MeetingId {
+						result = true
+						break
+					}
+				}
+				if !result {
+					continue
+				}
 			}
 		}
 
@@ -75,7 +54,48 @@ func (m *MockRacesRepo) List(filter *racing.ListRacesRequestFilter) ([]*racing.R
 		filteredRaces = append(filteredRaces, race)
 	}
 
+	if orderBy != nil {
+		// Sort the filtered races considering the request order by
+		sort.Slice(filteredRaces, func(i, j int) bool {
+			for _, orderByClause := range orderBy {
+				condition := compareField(orderByClause, races[i], races[j])
+				if condition < 0 {
+					return false
+				} else if condition > 0 {
+					return true
+				}
+			}
+			// If all fields are equal, preserve the original order
+			return i < j
+		})
+	}
+
 	return filteredRaces, nil
+}
+
+// Compare a field in the race using racing.ListRacesRequestOrderBy considering the direction ASC or DESC
+func compareField(orderBy *racing.ListRacesRequestOrderBy, a *racing.Race, b *racing.Race) int {
+	if orderBy.FieldName == "advertisedStartTime" {
+		time1 := a.AdvertisedStartTime.AsTime()
+		time2 := b.AdvertisedStartTime.AsTime()
+		if time1.Equal(time2) {
+			return 0
+		}
+		if orderBy.Direction == racing.OrderByDirection_DESC {
+			if time2.After(time1) {
+				return -1
+			} else {
+				return 1
+			}
+		} else {
+			if time1.After(time2) {
+				return -1
+			} else {
+				return 1
+			}
+		}
+	}
+	return 0
 }
 
 func TestRacingService_ListRaces(t *testing.T) {
@@ -83,6 +103,7 @@ func TestRacingService_ListRaces(t *testing.T) {
 	testCases := []struct {
 		name          string
 		filter        *racing.ListRacesRequestFilter
+		orderBy       []*racing.ListRacesRequestOrderBy
 		expectedRaces []*racing.Race
 		expectedErr   bool
 	}{
@@ -91,33 +112,8 @@ func TestRacingService_ListRaces(t *testing.T) {
 			filter: &racing.ListRacesRequestFilter{
 				// empty filter
 			},
-			expectedRaces: []*racing.Race{
-				{
-					Id:                  1,
-					MeetingId:           5,
-					Name:                "North Dakota foes",
-					Number:              12,
-					Visible:             false,
-					AdvertisedStartTime: timestamppb.New(time.Date(2022, 7, 15, 12, 0, 0, 0, time.UTC)),
-				},
-				{
-					Id:                  2,
-					MeetingId:           1,
-					Name:                "Connecticut griffins",
-					Number:              12,
-					Visible:             true,
-					AdvertisedStartTime: timestamppb.New(time.Date(2023, 7, 15, 12, 0, 0, 0, time.UTC)),
-				},
-				{
-					Id:                  3,
-					MeetingId:           8,
-					Name:                "Rhode Island ghosts",
-					Number:              3,
-					Visible:             false,
-					AdvertisedStartTime: timestamppb.New(time.Date(2024, 7, 15, 12, 0, 0, 0, time.UTC)),
-				},
-			},
-			expectedErr: false,
+			expectedRaces: getAllTestData(),
+			expectedErr:   false,
 		},
 		{
 			name: "FilterByMeetingIDs",
@@ -177,6 +173,40 @@ func TestRacingService_ListRaces(t *testing.T) {
 			},
 			expectedErr: false,
 		},
+		{
+			name: "OrderByAdvertisedStartTimeDescending",
+			orderBy: []*racing.ListRacesRequestOrderBy{
+				{FieldName: "advertisedStartTime",
+					Direction: racing.OrderByDirection_DESC,
+				},
+			},
+			expectedRaces: []*racing.Race{
+				{
+					Id:                  3,
+					MeetingId:           8,
+					Name:                "Rhode Island ghosts",
+					Number:              3,
+					Visible:             false,
+					AdvertisedStartTime: timestamppb.New(time.Date(2024, 7, 15, 12, 0, 0, 0, time.UTC)),
+				},
+				{
+					Id:                  2,
+					MeetingId:           1,
+					Name:                "Connecticut griffins",
+					Number:              12,
+					Visible:             true,
+					AdvertisedStartTime: timestamppb.New(time.Date(2023, 7, 15, 12, 0, 0, 0, time.UTC)),
+				},
+				{Id: 1,
+					MeetingId:           5,
+					Name:                "North Dakota foes",
+					Number:              12,
+					Visible:             false,
+					AdvertisedStartTime: timestamppb.New(time.Date(2022, 7, 15, 12, 0, 0, 0, time.UTC)),
+				},
+			},
+			expectedErr: false,
+		},
 	}
 
 	// Create a mock RacesRepo and pass it to the racingService
@@ -188,7 +218,8 @@ func TestRacingService_ListRaces(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			// Prepare the request
 			request := &racing.ListRacesRequest{
-				Filter: tc.filter,
+				Filter:  tc.filter,
+				OrderBy: tc.orderBy,
 			}
 
 			// Call the method being tested
@@ -204,7 +235,35 @@ func TestRacingService_ListRaces(t *testing.T) {
 				t.Errorf("unexpected number of races: got %d, want %d", len(response.Races), len(tc.expectedRaces))
 			}
 
-			assert.ElementsMatch(t, tc.expectedRaces, response.Races, "unexpected races")
+			assert.Equal(t, tc.expectedRaces, response.Races, "unexpected races")
 		})
+	}
+}
+
+func getAllTestData() []*racing.Race {
+	return []*racing.Race{
+		{Id: 1,
+			MeetingId:           5,
+			Name:                "North Dakota foes",
+			Number:              12,
+			Visible:             false,
+			AdvertisedStartTime: timestamppb.New(time.Date(2022, 7, 15, 12, 0, 0, 0, time.UTC)),
+		},
+		{
+			Id:                  2,
+			MeetingId:           1,
+			Name:                "Connecticut griffins",
+			Number:              12,
+			Visible:             true,
+			AdvertisedStartTime: timestamppb.New(time.Date(2023, 7, 15, 12, 0, 0, 0, time.UTC)),
+		},
+		{
+			Id:                  3,
+			MeetingId:           8,
+			Name:                "Rhode Island ghosts",
+			Number:              3,
+			Visible:             false,
+			AdvertisedStartTime: timestamppb.New(time.Date(2024, 7, 15, 12, 0, 0, 0, time.UTC)),
+		},
 	}
 }

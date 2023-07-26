@@ -18,6 +18,7 @@ service Racing {
 // Request for ListRaces call.
 message ListRacesRequest {
   ListRacesRequestFilter filter = 1;
+  repeated ListRacesRequestOrderBy order_by = 2;
 }
 
 // Response to ListRaces call.
@@ -34,6 +35,16 @@ enum VisibilityStatus {
 message ListRacesRequestFilter {
   repeated int64 meeting_ids = 1;
   VisibilityStatus visibility_status = 2;
+}
+
+// Order by for listing races
+enum OrderByDirection {
+  ASC = 0;
+  DESC = 1;
+}
+message ListRacesRequestOrderBy {
+  string field_name = 1;
+  OrderByDirection direction = 2;
 }
 
 /* Resources */

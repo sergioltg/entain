@@ -19,6 +19,28 @@ Also added two unit tests:
 
 Testify package was installed to facilitate the test cases
 
+## Task 2
+Added a new field to the request called order_by. It is an array and multiple order by fields can be passed with their respective direction that can be ASC or DESC.
+
+At the moment only the field advertisedStartTime have been implemented but another field can be added easily. I think we should have a control which fields should be allowed for sorting.
+
+The order by test cases have been added to unit tests.
+
+```bash
+curl -X "POST" "http://localhost:8000/v1/list-races" \
+     -H 'Content-Type: application/json' \
+     -d $'{  
+	"filter": {
+		"visibility_status": "VISIBLE"
+	},
+	"order_by": [{
+		"field_name": "advertisedStartTime",
+		"direction": "DESC"
+	}]
+}'
+```
+
+
 ## Entain BE Technical Test
 
 This test has been designed to demonstrate your ability and understanding of technologies commonly used at Entain. 
