@@ -18,7 +18,7 @@ type RacesRepo interface {
 	Init() error
 
 	// List will return a list of races.
-	List(filter *racing.ListRacesRequestFilter, orderBy []*racing.ListRacesRequestOrderBy) ([]*racing.Race, error)
+	List(filter *racing.ListRacesRequestFilter, orderBy []*racing.ListRacesRequestOrderBy, currentDate time.Time) ([]*racing.Race, error)
 }
 
 type racesRepo struct {
@@ -43,7 +43,7 @@ func (r *racesRepo) Init() error {
 	return err
 }
 
-func (r *racesRepo) List(filter *racing.ListRacesRequestFilter, orderBy []*racing.ListRacesRequestOrderBy) ([]*racing.Race, error) {
+func (r *racesRepo) List(filter *racing.ListRacesRequestFilter, orderBy []*racing.ListRacesRequestOrderBy, currentDate time.Time) ([]*racing.Race, error) {
 	var (
 		err   error
 		query string
@@ -61,7 +61,7 @@ func (r *racesRepo) List(filter *racing.ListRacesRequestFilter, orderBy []*racin
 		return nil, err
 	}
 
-	return r.scanRaces(rows)
+	return r.scanRaces(rows, currentDate)
 }
 
 func (r *racesRepo) applyFilter(query string, filter *racing.ListRacesRequestFilter) (string, []interface{}) {
@@ -122,9 +122,7 @@ func (r *racesRepo) applyOrderBy(query string, orderBy []*racing.ListRacesReques
 	return query
 }
 
-func (r *racesRepo) scanRaces(
-	rows *sql.Rows,
-) ([]*racing.Race, error) {
+func (r *racesRepo) scanRaces(rows *sql.Rows, currentDate time.Time) ([]*racing.Race, error) {
 	var races []*racing.Race
 
 	for rows.Next() {
@@ -145,7 +143,11 @@ func (r *racesRepo) scanRaces(
 		}
 
 		race.AdvertisedStartTime = ts
-
+		if advertisedStart.Before(currentDate) {
+			race.Status = "CLOSED"
+		} else {
+			race.Status = "OPEN"
+		}
 		races = append(races, &race)
 	}
 

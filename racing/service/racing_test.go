@@ -17,7 +17,7 @@ func (m *MockRacesRepo) Init() error {
 	return nil
 }
 
-func (m *MockRacesRepo) List(filter *racing.ListRacesRequestFilter, orderBy []*racing.ListRacesRequestOrderBy) ([]*racing.Race, error) {
+func (m *MockRacesRepo) List(filter *racing.ListRacesRequestFilter, orderBy []*racing.ListRacesRequestOrderBy, currentDate time.Time) ([]*racing.Race, error) {
 	// Mock the behavior here and return a predefined response.
 	// For simplicity, we'll return a predefined list of races.
 	races := getAllTestData()
@@ -127,6 +127,7 @@ func TestRacingService_ListRaces(t *testing.T) {
 					Name:                "Connecticut griffins",
 					Number:              12,
 					Visible:             true,
+					Status:              "OPEN",
 					AdvertisedStartTime: timestamppb.New(time.Date(2023, 7, 15, 12, 0, 0, 0, time.UTC)),
 				},
 			},
@@ -144,6 +145,7 @@ func TestRacingService_ListRaces(t *testing.T) {
 					Name:                "Connecticut griffins",
 					Number:              12,
 					Visible:             true,
+					Status:              "OPEN",
 					AdvertisedStartTime: timestamppb.New(time.Date(2023, 7, 15, 12, 0, 0, 0, time.UTC)),
 				},
 			},
@@ -160,6 +162,7 @@ func TestRacingService_ListRaces(t *testing.T) {
 					Name:                "North Dakota foes",
 					Number:              12,
 					Visible:             false,
+					Status:              "CLOSED",
 					AdvertisedStartTime: timestamppb.New(time.Date(2022, 7, 15, 12, 0, 0, 0, time.UTC)),
 				},
 				{
@@ -168,6 +171,7 @@ func TestRacingService_ListRaces(t *testing.T) {
 					Name:                "Rhode Island ghosts",
 					Number:              3,
 					Visible:             false,
+					Status:              "OPEN",
 					AdvertisedStartTime: timestamppb.New(time.Date(2024, 7, 15, 12, 0, 0, 0, time.UTC)),
 				},
 			},
@@ -187,6 +191,7 @@ func TestRacingService_ListRaces(t *testing.T) {
 					Name:                "Rhode Island ghosts",
 					Number:              3,
 					Visible:             false,
+					Status:              "OPEN",
 					AdvertisedStartTime: timestamppb.New(time.Date(2024, 7, 15, 12, 0, 0, 0, time.UTC)),
 				},
 				{
@@ -195,6 +200,7 @@ func TestRacingService_ListRaces(t *testing.T) {
 					Name:                "Connecticut griffins",
 					Number:              12,
 					Visible:             true,
+					Status:              "OPEN",
 					AdvertisedStartTime: timestamppb.New(time.Date(2023, 7, 15, 12, 0, 0, 0, time.UTC)),
 				},
 				{Id: 1,
@@ -202,6 +208,7 @@ func TestRacingService_ListRaces(t *testing.T) {
 					Name:                "North Dakota foes",
 					Number:              12,
 					Visible:             false,
+					Status:              "CLOSED",
 					AdvertisedStartTime: timestamppb.New(time.Date(2022, 7, 15, 12, 0, 0, 0, time.UTC)),
 				},
 			},
@@ -247,6 +254,7 @@ func getAllTestData() []*racing.Race {
 			Name:                "North Dakota foes",
 			Number:              12,
 			Visible:             false,
+			Status:              "CLOSED",
 			AdvertisedStartTime: timestamppb.New(time.Date(2022, 7, 15, 12, 0, 0, 0, time.UTC)),
 		},
 		{
@@ -255,6 +263,7 @@ func getAllTestData() []*racing.Race {
 			Name:                "Connecticut griffins",
 			Number:              12,
 			Visible:             true,
+			Status:              "OPEN",
 			AdvertisedStartTime: timestamppb.New(time.Date(2023, 7, 15, 12, 0, 0, 0, time.UTC)),
 		},
 		{
@@ -263,6 +272,7 @@ func getAllTestData() []*racing.Race {
 			Name:                "Rhode Island ghosts",
 			Number:              3,
 			Visible:             false,
+			Status:              "OPEN",
 			AdvertisedStartTime: timestamppb.New(time.Date(2024, 7, 15, 12, 0, 0, 0, time.UTC)),
 		},
 	}

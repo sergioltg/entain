@@ -34,9 +34,37 @@ func TestRacesRepo_List(t *testing.T) {
 		expectedRaces []*racing.Race
 	}{
 		{
-			name:          "NoFilter",
-			filter:        nil,
-			expectedRaces: getAllTestData(),
+			name:   "NoFilter",
+			filter: nil,
+			expectedRaces: []*racing.Race{
+				{
+					Id:                  1,
+					MeetingId:           5,
+					Name:                "North Dakota foes",
+					Number:              12,
+					Visible:             false,
+					Status:              "CLOSED",
+					AdvertisedStartTime: timestamppb.New(time.Date(2022, 7, 15, 12, 0, 0, 0, time.UTC)),
+				},
+				{
+					Id:                  2,
+					MeetingId:           1,
+					Name:                "Connecticut griffins",
+					Number:              12,
+					Visible:             true,
+					Status:              "OPEN",
+					AdvertisedStartTime: timestamppb.New(time.Date(2023, 7, 15, 12, 0, 0, 0, time.UTC)),
+				},
+				{
+					Id:                  3,
+					MeetingId:           8,
+					Name:                "Rhode Island ghosts",
+					Number:              3,
+					Visible:             false,
+					Status:              "OPEN",
+					AdvertisedStartTime: timestamppb.New(time.Date(2024, 7, 15, 12, 0, 0, 0, time.UTC)),
+				},
+			},
 		},
 		{
 			name: "FilterByMeetingIDs",
@@ -50,6 +78,7 @@ func TestRacesRepo_List(t *testing.T) {
 					Name:                "North Dakota foes",
 					Number:              12,
 					Visible:             false,
+					Status:              "CLOSED",
 					AdvertisedStartTime: timestamppb.New(time.Date(2022, 7, 15, 12, 0, 0, 0, time.UTC)),
 				},
 				{
@@ -58,6 +87,7 @@ func TestRacesRepo_List(t *testing.T) {
 					Name:                "Rhode Island ghosts",
 					Number:              3,
 					Visible:             false,
+					Status:              "OPEN",
 					AdvertisedStartTime: timestamppb.New(time.Date(2024, 7, 15, 12, 0, 0, 0, time.UTC)),
 				},
 			},
@@ -75,6 +105,7 @@ func TestRacesRepo_List(t *testing.T) {
 					Name:                "Connecticut griffins",
 					Number:              12,
 					Visible:             true,
+					Status:              "OPEN",
 					AdvertisedStartTime: timestamppb.New(time.Date(2023, 7, 15, 12, 0, 0, 0, time.UTC)),
 				},
 			},
@@ -92,6 +123,7 @@ func TestRacesRepo_List(t *testing.T) {
 					Name:                "Connecticut griffins",
 					Number:              12,
 					Visible:             true,
+					Status:              "OPEN",
 					AdvertisedStartTime: timestamppb.New(time.Date(2023, 7, 15, 12, 0, 0, 0, time.UTC)),
 				},
 			},
@@ -108,6 +140,7 @@ func TestRacesRepo_List(t *testing.T) {
 					Name:                "North Dakota foes",
 					Number:              12,
 					Visible:             false,
+					Status:              "CLOSED",
 					AdvertisedStartTime: timestamppb.New(time.Date(2022, 7, 15, 12, 0, 0, 0, time.UTC)),
 				},
 				{
@@ -116,6 +149,7 @@ func TestRacesRepo_List(t *testing.T) {
 					Name:                "Rhode Island ghosts",
 					Number:              3,
 					Visible:             false,
+					Status:              "OPEN",
 					AdvertisedStartTime: timestamppb.New(time.Date(2024, 7, 15, 12, 0, 0, 0, time.UTC)),
 				},
 			},
@@ -134,6 +168,7 @@ func TestRacesRepo_List(t *testing.T) {
 					Name:                "Rhode Island ghosts",
 					Number:              3,
 					Visible:             false,
+					Status:              "OPEN",
 					AdvertisedStartTime: timestamppb.New(time.Date(2024, 7, 15, 12, 0, 0, 0, time.UTC)),
 				},
 				{
@@ -142,6 +177,7 @@ func TestRacesRepo_List(t *testing.T) {
 					Name:                "Connecticut griffins",
 					Number:              12,
 					Visible:             true,
+					Status:              "OPEN",
 					AdvertisedStartTime: timestamppb.New(time.Date(2023, 7, 15, 12, 0, 0, 0, time.UTC)),
 				},
 				{
@@ -150,6 +186,7 @@ func TestRacesRepo_List(t *testing.T) {
 					Name:                "North Dakota foes",
 					Number:              12,
 					Visible:             false,
+					Status:              "CLOSED",
 					AdvertisedStartTime: timestamppb.New(time.Date(2022, 7, 15, 12, 0, 0, 0, time.UTC)),
 				},
 			},
@@ -160,7 +197,7 @@ func TestRacesRepo_List(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			// Call the List method with the filter
-			races, err := racesRepo.List(tc.filter, tc.orderBy)
+			races, err := racesRepo.List(tc.filter, tc.orderBy, getDateNow())
 			if err != nil {
 				t.Fatalf("failed to get races: %v", err)
 			}
@@ -228,4 +265,8 @@ func getAllTestData() []*racing.Race {
 			AdvertisedStartTime: timestamppb.New(time.Date(2024, 7, 15, 12, 0, 0, 0, time.UTC)),
 		},
 	}
+}
+
+func getDateNow() time.Time {
+	return time.Date(2023, 7, 15, 12, 0, 0, 0, time.UTC)
 }

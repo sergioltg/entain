@@ -40,6 +40,9 @@ curl -X "POST" "http://localhost:8000/v1/list-races" \
 }'
 ```
 
+## Task 3
+Added a new field to the race called status. It is calculated when scanning the database and building the list of races.
+
 
 ## Entain BE Technical Test
 
