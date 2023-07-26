@@ -55,7 +55,7 @@ Added test cases for checking when an id exists and when an id is not found.
 ## Task 5
 Added a 'sports' service. It is very similar to the races.
 
-This service will use the port 9001. Changed the http api to connect to the service endpoint.
+This service will use the port 9001. Added the service endpoint to the REST gateway.
 
 ```bash
 curl -X "POST" "http://localhost:8000/v1/list-events" \
