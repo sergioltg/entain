@@ -4,6 +4,7 @@ import (
 	"git.neds.sh/matty/entain/racing/db"
 	"git.neds.sh/matty/entain/racing/proto/racing"
 	"golang.org/x/net/context"
+	"time"
 )
 
 type Racing interface {
@@ -22,7 +23,7 @@ func NewRacingService(racesRepo db.RacesRepo) Racing {
 }
 
 func (s *racingService) ListRaces(ctx context.Context, in *racing.ListRacesRequest) (*racing.ListRacesResponse, error) {
-	races, err := s.racesRepo.List(in.Filter, in.OrderBy)
+	races, err := s.racesRepo.List(in.Filter, in.OrderBy, time.Now())
 	if err != nil {
 		return nil, err
 	}
