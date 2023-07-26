@@ -18,7 +18,7 @@ type RacesRepo interface {
 	Init() error
 
 	// List will return a list of races.
-	List(filter *racing.ListRacesRequestFilter) ([]*racing.Race, error)
+	List(filter *racing.ListRacesRequestFilter, orderBy []*racing.ListRacesRequestOrderBy) ([]*racing.Race, error)
 }
 
 type racesRepo struct {
@@ -43,7 +43,7 @@ func (r *racesRepo) Init() error {
 	return err
 }
 
-func (r *racesRepo) List(filter *racing.ListRacesRequestFilter) ([]*racing.Race, error) {
+func (r *racesRepo) List(filter *racing.ListRacesRequestFilter, orderBy []*racing.ListRacesRequestOrderBy) ([]*racing.Race, error) {
 	var (
 		err   error
 		query string
@@ -53,6 +53,8 @@ func (r *racesRepo) List(filter *racing.ListRacesRequestFilter) ([]*racing.Race,
 	query = getRaceQueries()[racesList]
 
 	query, args = r.applyFilter(query, filter)
+
+	query = r.applyOrderBy(query, orderBy)
 
 	rows, err := r.db.Query(query, args...)
 	if err != nil {
@@ -92,6 +94,32 @@ func (r *racesRepo) applyFilter(query string, filter *racing.ListRacesRequestFil
 	}
 
 	return query, args
+}
+
+func (r *racesRepo) applyOrderBy(query string, orderBy []*racing.ListRacesRequestOrderBy) string {
+	var (
+		clauses []string
+	)
+
+	if orderBy == nil {
+		return query
+	}
+
+	for _, orderByClause := range orderBy {
+		if strings.ToLower(orderByClause.FieldName) == "advertisedstarttime" {
+			if orderByClause.Direction == racing.OrderByDirection_DESC {
+				clauses = append(clauses, "advertised_start_time desc")
+			} else {
+				clauses = append(clauses, "advertised_start_time")
+			}
+		}
+	}
+
+	if len(clauses) != 0 {
+		query += " ORDER BY " + strings.Join(clauses, ",")
+	}
+
+	return query
 }
 
 func (r *racesRepo) scanRaces(
