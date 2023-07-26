@@ -80,6 +80,13 @@ func (r *racesRepo) applyFilter(query string, filter *racing.ListRacesRequestFil
 		}
 	}
 
+	switch filter.VisibilityStatus {
+	case racing.VisibilityStatus_VISIBLE:
+		clauses = append(clauses, "visible = 1")
+	case racing.VisibilityStatus_HIDDEN:
+		clauses = append(clauses, "visible = 0")
+	}
+
 	if len(clauses) != 0 {
 		query += " WHERE " + strings.Join(clauses, " AND ")
 	}
@@ -87,7 +94,7 @@ func (r *racesRepo) applyFilter(query string, filter *racing.ListRacesRequestFil
 	return query, args
 }
 
-func (m *racesRepo) scanRaces(
+func (r *racesRepo) scanRaces(
 	rows *sql.Rows,
 ) ([]*racing.Race, error) {
 	var races []*racing.Race
