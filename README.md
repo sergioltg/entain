@@ -2,6 +2,16 @@
 
 ## Task 1
 Added a new filter for the method listRaces called visibility_status. The values can be ALL, VISIBLE and HIDDEN.
+To make a request using the filter:
+
+```bash
+curl -X "POST" "http://localhost:8000/v1/list-races" \
+     -H 'Content-Type: application/json' \
+     -d $'{
+  "filter": {"visibility_status": "VISIBLE"}
+}'
+```
+
 Also added two unit tests:
 
 * racing_test.go - service that uses a mocked races repository
