@@ -21,7 +21,7 @@ Also added two unit tests:
 Testify package was installed to facilitate the test cases
 
 ## Task 2
-Added a new field to the request called order_by. It is an array and multiple order by fields can be passed with their respective direction that can be ASC or DESC.
+Added a new field to the request called order_by. It is an array and multiple order by fields can be passed with their respective direction that can be ASC or DESC. By default, is uses ASC.
 
 At the moment only the field advertisedStartTime have been implemented but another field can be added easily. I think we should have a control which fields should be allowed for sorting.
 
@@ -42,7 +42,7 @@ curl -X "POST" "http://localhost:8000/v1/list-races" \
 ```
 
 ## Task 3
-Added a new field to the race called status. It is calculated when scanning the database and building the list of races.
+Added a new field to the race called status. It is calculated when scanning the database rows and building the list of races.
 
 ## Task 4
 Added a new rpc call to fetch for a single race by id. It returns 404 if no race is found.
