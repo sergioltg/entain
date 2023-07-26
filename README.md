@@ -62,6 +62,8 @@ curl -X "POST" "http://localhost:8000/v1/list-events" \
      -d $'{  
 	"filter": {}
 }'
+
+curl -X "GET" "http://localhost:8000/v1/event/1"
 ```
 
 ## Entain BE Technical Test
